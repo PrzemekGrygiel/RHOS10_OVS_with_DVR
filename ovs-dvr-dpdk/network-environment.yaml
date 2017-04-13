@@ -1,0 +1,129 @@
+resource_registry:
+  # Specify the relative/absolute path to the config files you want to use for override the default.
+  OS::TripleO::Compute::Net::SoftwareConfig: compute-dpdk.yaml
+  OS::TripleO::Controller::Net::SoftwareConfig: controller.yaml
+  OS::TripleO::NodeUserData: first-boot.yaml
+  OS::TripleO::NodeExtraConfigPost: post-install.yaml
+
+  OS::TripleO::Services::ComputeNeutronL3Agent: /usr/share/openstack-tripleo-heat-templates/puppet/services/neutron-l3-compute-dvr.yaml
+  OS::TripleO::Services::ComputeNeutronMetadataAgent: /usr/share/openstack-tripleo-heat-templates/puppet/services/neutron-metadata.yaml
+
+  OS::TripleO::Services::ComputeNeutronOvsAgent: /usr/share/openstack-tripleo-heat-templates/puppet/services/neutron-ovs-dpdk-agent.yaml
+  # Network isolation configuration
+  # Service section
+  # If some service should be disable, use the following example
+  # OS::TripleO::Network::Management: OS::Heat::None
+  OS::TripleO::Network::External: /usr/share/openstack-tripleo-heat-templates/network/external.yaml
+  OS::TripleO::Network::InternalApi: /usr/share/openstack-tripleo-heat-templates/network/internal_api.yaml
+  OS::TripleO::Network::Tenant: /usr/share/openstack-tripleo-heat-templates/network/tenant.yaml
+  OS::TripleO::Network::Management: OS::Heat::None
+  OS::TripleO::Network::StorageMgmt: OS::Heat::None
+  OS::TripleO::Network::Storage: OS::Heat::None
+
+  # Port assignments for the VIPs
+  OS::TripleO::Network::Ports::ExternalVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Network::Ports::InternalApiVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Network::Ports::RedisVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml
+  OS::TripleO::Network::Ports::StorageVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+  OS::TripleO::Network::Ports::StorageMgmtVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+
+  # Port assignments for the controller role
+  OS::TripleO::Controller::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Controller::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Controller::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  OS::TripleO::Controller::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+  OS::TripleO::Controller::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+  OS::TripleO::Controller::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+
+  # Port assignments for the compute role
+  OS::TripleO::Compute::Ports::ExternalPort: /usr/share/openstack-tripleo-heat-templates/network/ports/external.yaml
+  OS::TripleO::Compute::Ports::InternalApiPort: /usr/share/openstack-tripleo-heat-templates/network/ports/internal_api.yaml
+  OS::TripleO::Compute::Ports::TenantPort: /usr/share/openstack-tripleo-heat-templates/network/ports/tenant.yaml
+  OS::TripleO::Compute::Ports::ManagementPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+  OS::TripleO::Compute::Ports::StoragePort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+  OS::TripleO::Compute::Ports::StorageMgmtPort: /usr/share/openstack-tripleo-heat-templates/network/ports/noop.yaml
+
+  # Port assignments for service virtual IPs for the controller role
+  OS::TripleO::Controller::Ports::RedisVipPort: /usr/share/openstack-tripleo-heat-templates/network/ports/vip.yaml
+
+parameter_defaults:
+  # Customize all these values to match the local environment
+  #StorageMgmtNetCidr: 192.168.4.0/24
+  #StorageNetCidr: 192.168.3.0/24
+  InternalApiNetCidr: 192.168.2.0/24
+  TenantNetCidr: 192.168.1.0/24
+  ExternalNetCidr: 10.87.33.192/28
+  # CIDR subnet mask length for provisioning network
+  ControlPlaneSubnetCidr: '28'
+  InternalApiAllocationPools: [{'start': '192.168.2.10', 'end': '192.168.2.200'}]
+  TenantAllocationPools: [{'start': '192.168.1.1', 'end': '192.168.1.254'}]
+  # Use an External allocation pool which will leave room for floating IPs
+  ExternalAllocationPools: [{'start': '10.87.33.194', 'end': '10.87.33.200'}]
+  # Set to the router gateway on the external network
+  ExternalInterfaceDefaultRoute: 10.87.33.193
+  # Gateway router for the provisioning network (or Undercloud IP)
+  ControlPlaneDefaultRoute: 10.87.33.65
+  # Generally the IP of the Undercloud
+  EC2MetadataIp: 10.87.33.78  # Generally the IP of the Undercloud
+  InternalApiNetworkVlanID: 40
+  TenantNetworkVlanID: 35
+  ExternalNetworkVlanID: 100
+  #StorageNetworkVlanID: 42 
+  #StorageMgmtNetworkVlanID: 43  
+# Define the DNS servers (maximum 2) for the overcloud nodes
+  DnsServers: ["8.8.4.4","8.8.8.8"]
+  # May set to br-ex if using floating IPs only on native VLAN on bridge br-ex
+  NeutronExternalNetworkBridge: "''"
+  # The tunnel type for the tenant network (vxlan or gre). Set to '' to disable tunneling.
+  NeutronTunnelTypes: 'vxlan'
+  # The tenant network type for Neutron (vlan or vxlan).
+  NeutronNetworkType: 'vxlan'
+  # The OVS logical->physical bridge mappings to use.
+  NeutronBridgeMappings: 'datacentre:br-ex,dpdk:br-link'
+  # The Neutron ML2 and OpenVSwitch vlan mapping range to support.
+  BondInterfaceOvsOptions: "bond_mode=balance-slb lacp=active other_config:lacp-time=fast"  
+  # Nova flavor to use.
+  OvercloudControlFlavor: baremetal
+  OvercloudComputeFlavor: baremetal
+  # Number of nodes to deploy.
+  ControllerCount: 1
+  ComputeCount: 2
+
+  # Sets overcloud nodes custom names
+  # http://docs.openstack.org/developer/tripleo-docs/advanced_deployment/node_placement.html#custom-hostnames
+  ControllerHostnameFormat: 'controller-%index%'
+  ComputeHostnameFormat: 'compute-%index%'
+  CephStorageHostnameFormat: 'ceph-%index%'
+  ObjectStorageHostnameFormat: 'swift-%index%'
+
+  NeutronMechanismDrivers: ['openvswitch', 'l2population']
+  NeutronEnableL2Pop: 'True'
+
+  # Setting NeutronEnableDVR enables distributed routing support in the
+  #   # ML2 plugin and agents that support this feature
+  NeutronEnableDVR: true
+  #
+  #       # We also need to set the proper agent mode for the L3 agent.  This will only
+  #         # affect the agent on the controller node.
+  NeutronL3AgentMode: 'dvr_snat'
+  #
+  #             # L3 HA isn't supported for DVR enabled routers. If upgrading from a system
+  #               # where L3 HA is enabled and has neutron routers configured, it is
+  #                 # recommended setting this value to true until such time all routers can be
+  #                   # migrated to DVR routers. Once migration of the routers is complete,
+  #                     # NeutronL3HA can be returned to false. All new systems should be deployed
+  #                       # with NeutronL3HA set to fa 
+  NeutronL3HA: false
+
+  NeutronDpdkCoreList: "'2,4,6,8,10,12,14,18'"
+  NeutronDpdkMemoryChannels: "4"
+  NeutronDpdkSocketMemory: "1024"
+  NeutronDpdkDriverType: "vfio_pci"
+  NeutronDatapathType: "netdev"
+  NeutronVhostuserSocketDir: "/var/run/openvswitch"
+
+  NovaReservedHostMemory: 2048
+  NovaVcpuPinSet: "3-15"
+  NovaSchedulerDefaultFilters: "RamFilter,ComputeFilter,AvailabilityZoneFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,PciPassthroughFilter,NUMATopologyFilter"
+  ComputeKernelArgs: "default_hugepagesz=1GB hugepagesz=1G hugepages=96 iommu=pt intel_iommu=on"
+  HostCpusList: "2,4,6,8,10,12,14,18,20,22,24,26,28,30"
