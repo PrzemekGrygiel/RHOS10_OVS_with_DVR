@@ -161,7 +161,7 @@ resources:
                 -
                   type: ovs_dpdk_bond
                   name: dpdkbond0
-		  ovs_options: {get_param: BondInterfaceOvsOptions}
+		              ovs_options: {get_param: BondInterfaceOvsOptions}
                   members:
                     -
                       type: ovs_dpdk_port
@@ -169,14 +169,14 @@ resources:
                       members:
                         -
                           type: interface
-                          name: ens7f0
+                          name: nic3
                     -
                       type: ovs_dpdk_port
                       name: dpdk1
                       members:
                         -
                           type: interface
-                          name: ens7f1
+                          name: nic4
 outputs:
   OS::stack_id:
     description: The OsNetConfigImpl resource.
