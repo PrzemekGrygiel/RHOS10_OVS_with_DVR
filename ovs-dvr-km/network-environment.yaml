@@ -79,7 +79,7 @@ parameter_defaults:
   NeutronNetworkType: 'vxlan'
   #BondInterfaceOvsOptions: "bond_mode=active-backup"  
   # The OVS logical->physical bridge mappings to use.
-  # NeutronBridgeMappings: 'datacentre:br-ex,dpdk:br-link'
+  # NeutronBridgeMappings: 'datacentre:br-link, external:br-ex'
   # The Neutron ML2 and OpenVSwitch vlan mapping range to support.
   BondInterfaceOvsOptions: "bond_mode=balance-slb lacp=active other_config:lacp-time=fast other_config:bond-detect-mode=miimon other_config:bond-miimon-interval=100"  
   # Nova flavor to use.
@@ -114,3 +114,5 @@ parameter_defaults:
   #                     # NeutronL3HA can be returned to false. All new systems should be deployed
   #                       # with NeutronL3HA set to fa 
   NeutronL3HA: false
+  ComputeKernelArgs: ""
+

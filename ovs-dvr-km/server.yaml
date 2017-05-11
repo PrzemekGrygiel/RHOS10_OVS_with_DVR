@@ -119,6 +119,25 @@ resources:
               dns_servers: {get_param: DnsServers}
               members:
                 -
+                  type: interface
+                  name: nic2
+                -
+                  type: vlan
+                  device: nic2
+                  vlan_id: {get_param: ExternalNetworkVlanID}
+                  addresses:
+                    -
+                      ip_netmask: {get_param: ExternalIpSubnet}
+                  routes:
+                    -
+                      default: true
+                      next_hop: {get_param: ExternalInterfaceDefaultRoute}
+            -
+              type: ovs_bridge
+              name: br-link 
+              dns_servers: {get_param: DnsServers}
+              members:
+                -
                   type: ovs_bond
                   name: bond1
                   ovs_options: {get_param: BondInterfaceOvsOptions}
@@ -133,14 +152,10 @@ resources:
                 -
                   type: vlan
                   device: bond1
-                  vlan_id: {get_param: ExternalNetworkVlanID}
+                  vlan_id: {get_param: TenantNetworkVlanID}
                   addresses:
                     -
-                      ip_netmask: {get_param: ExternalIpSubnet}
-                  routes:
-                    -
-                      default: true
-                      next_hop: {get_param: ExternalInterfaceDefaultRoute}
+                      ip_netmask: {get_param: TenantIpSubnet}
                 -
                   type: vlan
                   device: bond1
@@ -148,27 +163,7 @@ resources:
                   addresses:
                     -
                       ip_netmask: {get_param: InternalApiIpSubnet}
-                -
-                  type: vlan
-                  device: bond1
-                  vlan_id: {get_param: StorageNetworkVlanID}
-                  addresses:
-                    -
-                      ip_netmask: {get_param: StorageIpSubnet}
-                -
-                  type: vlan
-                  device: bond1
-                  vlan_id: {get_param: StorageMgmtNetworkVlanID}
-                  addresses:
-                    -
-                      ip_netmask: {get_param: StorageMgmtIpSubnet}
-                -
-                  type: vlan
-                  device: bond1
-                  vlan_id: {get_param: TenantNetworkVlanID}
-                  addresses:
-                    -
-                      ip_netmask: {get_param: TenantIpSubnet}
+
                 # Uncomment when including environments/network-management.yaml
                 # If setting default route on the Management interface, comment
                 # out the default route on the External interface. This will

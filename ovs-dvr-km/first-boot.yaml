@@ -60,14 +60,12 @@ resources:
     type: OS::Heat::SoftwareConfig
     properties:
       config:
-        str_replace:
-          template: |
-            #!/bin/bash
-            set -x
-            systemctl stop NetworkManager.service 
-            systemctl disable NetworkManager.service
-            echo -e "r00tme\nr00tme" | (passwd --stdin root)
-            sed -i s/SELINUX=enforcing/SELINUX=disable/ /etc/sysconfig/selinux
+        #!/bin/bash
+        set -x
+        systemctl stop NetworkManager.service 
+        systemctl disable NetworkManager.service
+        echo -e "r00tme\nr00tme" | (passwd --stdin root)
+        sed -i s/SELINUX=enforcing/SELINUX=disable/ /etc/sysconfig/selinux
 
 outputs:
   # This means get_resource from the parent template will get the userdata, see:
